@@ -29,7 +29,9 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeVideo[]
     id: item.id.videoId,
     title: item.snippet.title,
     channelTitle: item.snippet.channelTitle,
-    thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url,
+    thumbnail:
+      item.snippet.thumbnails.medium?.url ||
+      item.snippet.thumbnails.default?.url,
     url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
   }))
 }

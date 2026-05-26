@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from "react"
-import { DotLottieReact } from "@lottiefiles/dotlottie-react"
+
+import pawLogo from "./assets/logo.png"
+import loginBg from "./assets/login-bg.png"
+import appBg from "./assets/app-bg.png"
+
+
+import nextButton from "./assets/nextbutton.png"
+import backButton from "./assets/backbutton.png"
+import playButton from "./assets/playbutton.png"
+import pauseButton from "./assets/pausebutton.png"
+
 
 import {
   getAccessToken,
@@ -53,13 +63,17 @@ function App() {
   const [youtubeResults, setYoutubeResults] = useState<YouTubeVideo[]>([])
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false)
   const [youtubeError, setYoutubeError] = useState("")
+  const [activeYoutubeVideo, setActiveYoutubeVideo] =
+    useState<YouTubeVideo | null>(null)
 
   const [favoritePlaylistIds, setFavoritePlaylistIds] = useState<string[]>(() => {
     const saved = localStorage.getItem(FAVORITE_PLAYLISTS_STORAGE_KEY)
     return saved ? JSON.parse(saved) : []
   })
 
-  const [favoriteYoutubeVideos, setFavoriteYoutubeVideos] = useState<YouTubeVideo[]>(() => {
+  const [favoriteYoutubeVideos, setFavoriteYoutubeVideos] = useState<
+    YouTubeVideo[]
+  >(() => {
     const saved = localStorage.getItem(FAVORITE_YOUTUBE_STORAGE_KEY)
     return saved ? JSON.parse(saved) : []
   })
@@ -226,9 +240,11 @@ function App() {
     )
   }, [searchQuery, playlists])
 
-  const visiblePlaylists = filteredPlaylists
-    .filter((playlist) => !favoritePlaylistIds.includes(playlist.id))
-    .slice(0, 12)
+ const visiblePlaylists = searchQuery.trim()
+  ? filteredPlaylists.slice(0, 12)
+  : filteredPlaylists
+      .filter((playlist) => !favoritePlaylistIds.includes(playlist.id))
+      .slice(0, 12)
 
   const refreshStateAfterSkip = async () => {
     if (!player) return
@@ -370,13 +386,6 @@ function App() {
     return `${minutes}:${seconds}`
   }
 
-  const logout = () => {
-    localStorage.removeItem("spotify_access_token")
-    localStorage.removeItem("spotify_code_verifier")
-    sessionStorage.removeItem("spotify_code_verifier")
-    window.location.reload()
-  }
-
   const handleYouTubeSearch = async () => {
     if (!youtubeQuery.trim()) return
 
@@ -411,101 +420,190 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen bg-[#070311] px-4 py-6 text-white md:px-6">
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top,#ff7bdc33,transparent_38%),radial-gradient(circle_at_bottom,#7c3cff2e,transparent_42%)]" />
+    <main className="min-h-screen bg-[#0B0D13] px-4 py-6 text-white md:px-6">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,#9D7CFF18,transparent_38%),radial-gradient(circle_at_bottom,#6C55F510,transparent_42%)]" />
 
-      <section className="relative mx-auto h-[calc(100vh-48px)] min-h-[680px] w-full max-w-[430px] overflow-hidden rounded-[38px] border border-white/10 bg-[#12091f] shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_80px_rgba(255,90,220,0.16)] backdrop-blur-xl">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#ff7bdc24,transparent_42%),radial-gradient(circle_at_bottom,#8f3bff24,transparent_48%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-black/10" />
+      <section className="relative mx-auto h-[calc(100vh-48px)] min-h-[680px] w-full max-w-[430px] overflow-hidden rounded-[38px] border border-white/10 bg-[#151922] shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_70px_rgba(124,110,246,0.12)] backdrop-blur-xl">
+
+         <div
+          className={`
+          pointer-events-none
+          absolute
+          inset-0
+          z-0
+          blur-[1px]
+          scale-105
+          ${selectedPlaylist ? "opacity-18" : "opacity-80"}
+          `}
+          style={{
+          backgroundImage: `url(${appBg})`,
+          backgroundSize: selectedPlaylist ? "130%" : "cover",
+          backgroundPosition: selectedPlaylist ? "left bottom" : "center",
+        }}
+
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,#9D7CFF18,transparent_42%),radial-gradient(circle_at_bottom,#ffb64812,transparent_48%)]" />
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-[#05070D]/12" />
 
         {!isLoggedIn ? (
-          <div className="relative z-10 flex h-full flex-col items-center justify-center px-8 text-center">
-            <div className="mb-6 overflow-hidden rounded-[34px] border border-pink-200/15 bg-white/10 p-2 shadow-[0_0_44px_rgba(255,100,220,0.16)]">
-              <DotLottieReact
-                src="/dog-lottie.json"
-                autoplay
-                loop
-                style={{
-                  height: "168px",
-                  width: "168px",
-                }}
-              />
-            </div>
+        <div
+          className="
+          relative
+          z-10
+          flex
+          h-full
+          flex-col
+          items-center
+          justify-start
+          px-8
+          pt-24
+          text-center
+          "
+          style={{
+            backgroundImage: `url(${loginBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
 
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-pink-200/55">
+          <div className="pointer-events-none absolute inset-0 z-0 bg-[#05070dcc]/55" />
+
+          <div className="relative z-10 mb-6 flex items-center justify-center">
+
+            <img
+              src={pawLogo}
+              alt="PawTunes"
+              className="
+              h-[225px]
+              w-[225px]
+              object-contain
+              drop-shadow-[0_0_30px_rgba(255,182,72,0.18)]
+              "
+            />
+
+          </div>
+
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[#E7DEF8]/55">
               PawTunes
             </p>
 
-            <h1 className="mt-4 text-4xl font-black leading-tight text-pink-50">
+            <h1 className="mt-4 text-4xl font-black leading-tight text-[#F3E7D7]">
               Your cozy dog music companion
             </h1>
 
-            <p className="mt-4 max-w-xs text-sm leading-6 text-pink-100/60">
-              A polished mobile-first music companion built with Spotify,
-              YouTube, Lottie, React and TypeScript.
+           <p className="mt-5 max-w-[300px] text-sm leading-6 text-[#F3E7D7]/60">
+            Music feels better with your cozy
+            <br />
+            companion by your side.
             </p>
 
             <button
-              onClick={loginWithSpotify}
-              className="mt-8 w-full rounded-3xl bg-gradient-to-r from-[#ff5ebf] to-[#8f3bff] px-6 py-4 text-sm font-black text-white shadow-[0_16px_34px_rgba(255,90,190,0.28)] transition hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Connect Spotify
-            </button>
+            onClick={loginWithSpotify}
+            className="
+            relative
+            z-20
+            mt-8
+            w-full
+            rounded-3xl
+            bg-gradient-to-r
+            from-[#D69A3D]
+            to-[#B97826]
+            px-6
+            py-5
+            text-base
+            font-black
+            text-white
+            shadow-[0_16px_34px_rgba(255,182,72,0.28)]
+            transition
+            hover:scale-[1.02]
+            active:scale-[0.98]
+            "
+          >
+            Connect Spotify
+          </button>
 
-            <p className="mt-4 text-xs text-pink-100/35">
-              Spotify API • YouTube API • PWA • Tailwind
-            </p>
           </div>
         ) : !selectedPlaylist ? (
           <div className="relative z-10 h-full overflow-y-auto p-5 pb-32 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="rounded-[32px] border border-pink-200/15 bg-gradient-to-br from-[#2a173d] via-[#1a112a] to-[#10081d] p-5 shadow-[0_20px_40px_rgba(0,0,0,0.32)]">
+            <div className="rounded-[32px] border border-[#FFB648]/15 bg-gradient-to-br from-[#2a173d] via-[#1a112a] to-[#10081d] p-5 shadow-[0_20px_40px_rgba(0,0,0,0.32)]">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-pink-200/50">
+                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-[#E7DEF8]/50">
                     PawTunes
                   </p>
 
-                  <h1 className="mt-3 text-[28px] font-black leading-tight text-pink-50">
-                    {greeting.title} {greeting.icon}
+                  <h1 className="mt-3 text-[28px] font-black leading-tight text-[#F3E7D7]">
+                  {greeting.title}
                   </h1>
 
-                  <p className="mt-2 text-sm text-pink-100/55">
+                  <p className="mt-2 text-sm text-[#F3E7D7]/55">
                     {greeting.subtitle}
                   </p>
-                </div>
+                  </div>
 
-                <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[28px] border border-pink-200/10 bg-white/10 shadow-[0_0_40px_rgba(255,90,220,0.15)]">
-                  <DotLottieReact
-                    src="/dog-lottie.json"
-                    autoplay
-                    loop
-                    style={{
-                      height: "104px",
-                      width: "104px",
-                    }}
-                  />
-                </div>
+                <div className="
+                flex
+                h-[74px]
+                w-[74px]
+                shrink-0
+                items-center
+                justify-center
+                overflow-hidden
+                rounded-[22px]
+                border
+                border-[#9D7CFF]/10
+                bg-white/5
+                shadow-[0_0_24px_rgba(157,124,255,0.10)]
+                "
+                >
+                
+                {activeTab === "youtube" && activeYoutubeVideo ? (
+                <img
+                  src={activeYoutubeVideo.thumbnail}
+                  alt={activeYoutubeVideo.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : activeTab === "spotify" && selectedTrack?.album?.images?.[0]?.url ? (
+                <img
+                  src={selectedTrack.album.images[0].url}
+                  alt={selectedTrack?.name || "PawTunes"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <img
+                  src={pawLogo}
+                  alt="PawTunes"
+                  className="h-[82px] w-[82px] object-contain opacity-80"
+                />
+              )}
+              </div>
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 rounded-[24px] border border-pink-200/10 bg-white/5 p-1">
+            <div className="mt-5 grid grid-cols-2 rounded-[24px] border border-white/10 bg-white/5 p-1">
               <button
                 onClick={() => setActiveTab("spotify")}
                 className={`rounded-[20px] py-3 text-sm font-black transition ${
                   activeTab === "spotify"
-                    ? "bg-pink-400/20 text-pink-50 shadow-[0_8px_20px_rgba(255,90,190,0.12)]"
-                    : "text-pink-100/45"
+                    ? "bg-[#9D7CFF]/14 text-[#F3E7D7] shadow-[0_8px_20px_rgba(157,124,255,0.14)]"
+                    : "text-[#F3E7D7]/45"
                 }`}
               >
                 Spotify
               </button>
 
               <button
-                onClick={() => setActiveTab("youtube")}
+                onClick={async () => {
+                if (isPlaying) {
+                  await pausePlayback()
+                  setIsPlaying(false)
+                }
+                setActiveTab("youtube")
+              }}
                 className={`rounded-[20px] py-3 text-sm font-black transition ${
                   activeTab === "youtube"
-                    ? "bg-pink-400/20 text-pink-50 shadow-[0_8px_20px_rgba(255,90,190,0.12)]"
-                    : "text-pink-100/45"
+                    ? "bg-[#9D7CFF]/14 text-[#F3E7D7] shadow-[0_8px_20px_rgba(157,124,255,0.18)]"
+                    : "text-[#F3E7D7]/45"
                 }`}
               >
                 YouTube
@@ -514,7 +612,7 @@ function App() {
 
             {activeTab === "spotify" ? (
               <>
-                <div className="mt-5 rounded-[22px] border border-pink-200/10 bg-white/5 p-4 backdrop-blur-xl">
+                <div className="mt-5 rounded-[22px] border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">🔍</span>
 
@@ -522,18 +620,18 @@ function App() {
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
                       placeholder="Search Spotify playlists..."
-                      className="w-full bg-transparent text-sm text-pink-100 outline-none placeholder:text-pink-100/35"
+                      className="w-full bg-transparent text-sm text-[#E7DEF8] outline-none placeholder:text-[#E7DEF8]/35"
                     />
                   </div>
                 </div>
 
                 <div className="mt-6">
                   <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-xs font-black uppercase tracking-[0.25em] text-pink-200/65">
+                    <h2 className="text-xs font-black uppercase tracking-[0.25em] text-[#E7DEF8]/65">
                       Favorites
                     </h2>
 
-                    <span className="text-xs text-pink-100/40">
+                    <span className="text-xs text-[#F3E7D7]/40">
                       {favoritePlaylists.length}/6
                     </span>
                   </div>
@@ -544,21 +642,32 @@ function App() {
                         <button
                           key={playlist.id}
                           onClick={() => handlePlaylistClick(playlist)}
-                          className="relative rounded-[24px] border border-pink-200/15 bg-gradient-to-br from-[#43215a] to-[#16091f] p-4 text-left shadow-[0_12px_24px_rgba(0,0,0,0.26)] transition hover:-translate-y-1 active:scale-95"
-                        >
-                          <p className="truncate text-sm font-black text-pink-50">
+                          className="
+                          relative
+                          min-h-[58px]
+                          rounded-[22px]
+                          border
+                          border-[#9D7CFF]/15
+                          bg-gradient-to-br
+                          from-[#251433]
+                          to-[#110817]
+                          px-4 py-2
+                          text-left
+                          shadow-[0_12px_24px_rgba(0,0,0,0.26)]
+                          transition
+                          hover:-translate-y-1
+                          active:scale-95
+                          "
+                          >
+                          <p className="line-clamp-1 text-[15px] font-black text-[#F3E7D7]">
                             {playlist.name}
-                          </p>
-
-                          <p className="mt-1 text-xs text-pink-100/40">
-                            Saved playlist
                           </p>
 
                           <button
                             onClick={(event) =>
                               toggleFavoritePlaylist(event, playlist.id)
                             }
-                            className="absolute right-3 top-3 text-xs text-pink-100/45"
+                            className="absolute right-3 top-3 text-xs text-[#F3E7D7]/45"
                           >
                             ✕
                           </button>
@@ -566,30 +675,28 @@ function App() {
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-[28px] border border-dashed border-pink-200/15 bg-white/5 p-5 text-center">
+                    <div className="rounded-[28px] border border-dashed border-[#FFB648]/15 bg-white/5 p-5 text-center">
                       <p className="text-3xl">🐾</p>
-                      <p className="mt-2 text-sm font-black text-pink-50">
+
+                      <p className="mt-2 text-sm font-black text-[#F3E7D7]">
                         No favorites yet
                       </p>
-                      <p className="mt-1 text-xs text-pink-100/40">
+
+                      <p className="mt-1 text-xs text-[#F3E7D7]/40">
                         Save up to 6 playlists for quick access.
                       </p>
+
                     </div>
                   )}
                 </div>
 
                 <div className="mt-6">
                   <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-xs font-black uppercase tracking-[0.25em] text-pink-200/65">
+                    <h2 className="text-xs font-black uppercase tracking-[0.25em] text-[#E7DEF8]/65">
                       Playlists
                     </h2>
 
-                    <button
-                      onClick={logout}
-                      className="text-xs font-bold text-pink-100/40"
-                    >
-                      Logout
-                    </button>
+                    
                   </div>
 
                   {visiblePlaylists.length > 0 ? (
@@ -603,15 +710,17 @@ function App() {
                           <button
                             key={playlist.id}
                             onClick={() => handlePlaylistClick(playlist)}
-                            className="relative min-h-[128px] rounded-[26px] border border-pink-200/12 bg-gradient-to-br from-white/10 to-white/5 p-4 text-left shadow-[0_12px_26px_rgba(0,0,0,0.24)] transition hover:-translate-y-1 active:scale-95"
+                            className="relative min-h-[64px] rounded-[26px] border border-[#9D7CFF]/18 bg-gradient-to-br from-[#1E2430] to-[#151922] p-3 text-left shadow-[0_12px_26px_rgba(0,0,0,0.24)] transition hover:-translate-y-1 active:scale-95"
                           >
-                            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-400/15 text-2xl">
+                            <div className="flex items-center gap-2 pr-7">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#9D7CFF]/12 text-base">
                               🎧
                             </div>
 
-                            <p className="line-clamp-2 text-sm font-black text-pink-50">
+                            <p className="truncate text-sm font-black text-[#F3E7D7]">
                               {playlist.name}
                             </p>
+                          </div>
 
                             <button
                               onClick={(event) =>
@@ -626,9 +735,9 @@ function App() {
                       })}
                     </div>
                   ) : (
-                    <div className="rounded-[28px] border border-dashed border-pink-200/15 bg-white/5 p-6 text-center">
+                    <div className="rounded-[28px] border border-dashed border-[#FFB648]/15 bg-white/5 p-6 text-center">
                       <p className="text-3xl">🔍</p>
-                      <p className="mt-2 text-sm font-black text-pink-50">
+                      <p className="mt-2 text-sm font-black text-[#F3E7D7]">
                         No playlists found
                       </p>
                     </div>
@@ -637,7 +746,7 @@ function App() {
               </>
             ) : (
               <>
-                <div className="mt-5 rounded-[22px] border border-pink-200/10 bg-white/5 p-4 backdrop-blur-xl">
+                <div className="mt-5 rounded-[22px] border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">▶️</span>
 
@@ -650,25 +759,76 @@ function App() {
                         }
                       }}
                       placeholder="Search YouTube music..."
-                      className="w-full bg-transparent text-sm text-pink-100 outline-none placeholder:text-pink-100/35"
+                      className="w-full bg-transparent text-sm text-[#E7DEF8] outline-none placeholder:text-[#E7DEF8]/35"
                     />
 
                     <button
                       onClick={handleYouTubeSearch}
-                      className="rounded-2xl bg-pink-400/20 px-3 py-2 text-xs font-black text-pink-50"
+                      className="rounded-2xl bg-[#9D7CFF]/14 px-3 py-2 text-xs font-black text-[#F3E7D7]"
                     >
-                      Go
+                      Search
                     </button>
                   </div>
                 </div>
 
+                {activeYoutubeVideo && (
+                  <div className="mt-5 rounded-[26px] border border-[#9D7CFF]/15 bg-black/30 p-3 shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
+                    <div className="aspect-video overflow-hidden rounded-[20px] bg-black">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${activeYoutubeVideo.id}?autoplay=1`}
+                        title={activeYoutubeVideo.title}
+                        className="h-full w-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+
+                    <div className="mt-3 flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="line-clamp-2 text-sm font-black text-[#F3E7D7]">
+                          {activeYoutubeVideo.title}
+                        </p>
+
+                        <p className="mt-1 truncate text-xs text-[#F3E7D7]/45">
+                          {activeYoutubeVideo.channelTitle}
+                        </p>
+                      </div>
+
+                      <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => toggleFavoriteYoutubeVideo(activeYoutubeVideo)}
+                      className="rounded-xl bg-[#9D7CFF]/14 px-3 py-1.5 text-center text-xs font-black text-[#F3E7D7]"
+                    >
+                      {isFavoriteYoutubeVideo(activeYoutubeVideo.id) ? "Saved" : "Save"}
+                    </button>
+
+                    <a
+                      href={activeYoutubeVideo.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-xl bg-white/10 px-3 py-1.5 text-center text-xs font-black text-[#E7DEF8]/70"
+                    >
+                      Open
+                    </a>
+
+                    <button
+                      onClick={() => setActiveYoutubeVideo(null)}
+                      className="rounded-xl bg-white/10 px-3 py-1.5 text-xs font-black text-[#E7DEF8]/60"
+                    >
+                      Close
+                    </button>
+                  </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-6">
                   <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-xs font-black uppercase tracking-[0.25em] text-pink-200/65">
+                    <h2 className="text-xs font-black uppercase tracking-[0.25em] text-[#E7DEF8]/65">
                       Saved Videos
                     </h2>
 
-                    <span className="text-xs text-pink-100/40">
+                    <span className="text-xs text-[#F3E7D7]/40">
                       {favoriteYoutubeVideos.length}/8
                     </span>
                   </div>
@@ -676,12 +836,16 @@ function App() {
                   {favoriteYoutubeVideos.length > 0 ? (
                     <div className="space-y-3">
                       {favoriteYoutubeVideos.slice(0, 3).map((video) => (
-                        <a
+                        <button
                           key={video.id}
-                          href={video.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex gap-3 rounded-[22px] border border-pink-200/10 bg-white/5 p-3"
+                          onClick={async () => {
+                          if (isPlaying) {
+                            await pausePlayback()
+                            setIsPlaying(false)
+                          }
+                          setActiveYoutubeVideo(video)
+                        }}
+                          className="flex w-full gap-3 rounded-[22px] border border-white/10 bg-white/5 p-3 text-left"
                         >
                           <img
                             src={video.thumbnail}
@@ -690,24 +854,24 @@ function App() {
                           />
 
                           <div className="min-w-0">
-                            <p className="line-clamp-2 text-xs font-black text-pink-50">
+                            <p className="line-clamp-1 text-xs font-black text-[#F3E7D7]">
                               {video.title}
                             </p>
 
-                            <p className="mt-1 truncate text-xs text-pink-100/40">
+                            <p className="mt-1 truncate text-xs text-[#F3E7D7]/40">
                               {video.channelTitle}
                             </p>
                           </div>
-                        </a>
+                        </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-[28px] border border-dashed border-pink-200/15 bg-white/5 p-5 text-center">
+                    <div className="rounded-[28px] border border-dashed border-[#FFB648]/15 bg-white/5 p-5 text-center">
                       <p className="text-3xl">📺</p>
-                      <p className="mt-2 text-sm font-black text-pink-50">
+                      <p className="mt-2 text-sm font-black text-[#F3E7D7]">
                         No saved videos yet
                       </p>
-                      <p className="mt-1 text-xs text-pink-100/40">
+                      <p className="mt-1 text-xs text-[#F3E7D7]/40">
                         Search YouTube and save cozy music videos.
                       </p>
                     </div>
@@ -715,7 +879,7 @@ function App() {
                 </div>
 
                 <div className="mt-6">
-                  <h2 className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-pink-200/65">
+                  <h2 className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-[#E7DEF8]/65">
                     YouTube Results
                   </h2>
 
@@ -737,7 +901,7 @@ function App() {
                       {youtubeResults.map((video) => (
                         <div
                           key={video.id}
-                          className="rounded-[24px] border border-pink-200/10 bg-white/5 p-3"
+                          className="rounded-[24px] border border-white/10 bg-white/5 p-3"
                         >
                           <div className="flex gap-3">
                             <img
@@ -747,29 +911,33 @@ function App() {
                             />
 
                             <div className="min-w-0 flex-1">
-                              <p className="line-clamp-2 text-xs font-black text-pink-50">
+                              <p className="line-clamp-2 text-xs font-black text-[#F3E7D7]">
                                 {video.title}
                               </p>
 
-                              <p className="mt-1 truncate text-xs text-pink-100/40">
+                              <p className="mt-1 truncate text-xs text-[#F3E7D7]/40">
                                 {video.channelTitle}
                               </p>
 
                               <div className="mt-3 flex gap-2">
-                                <a
-                                  href={video.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="rounded-xl bg-pink-400/20 px-3 py-2 text-[11px] font-black text-pink-50"
+                                <button
+                                 onClick={async () => {
+                                if (isPlaying) {
+                                  await pausePlayback()
+                                  setIsPlaying(false)
+                                }
+                                setActiveYoutubeVideo(video)
+                              }}
+                                  className="rounded-xl bg-[#9D7CFF]/14 px-3 py-2 text-[11px] font-black text-[#F3E7D7]"
                                 >
-                                  Open
-                                </a>
+                                  Play
+                                </button>
 
                                 <button
                                   onClick={() =>
                                     toggleFavoriteYoutubeVideo(video)
                                   }
-                                  className="rounded-xl bg-white/10 px-3 py-2 text-[11px] font-black text-pink-50"
+                                  className="rounded-xl bg-white/10 px-3 py-2 text-[11px] font-black text-[#F3E7D7]"
                                 >
                                   {isFavoriteYoutubeVideo(video.id)
                                     ? "Saved"
@@ -782,12 +950,12 @@ function App() {
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-[28px] border border-dashed border-pink-200/15 bg-white/5 p-6 text-center">
+                    <div className="rounded-[28px] border border-dashed border-[#FFB648]/15 bg-white/5 p-6 text-center">
                       <p className="text-3xl">🎵</p>
-                      <p className="mt-2 text-sm font-black text-pink-50">
-                        Search for music videos
+                      <p className="mt-2 text-sm font-black text-[#F3E7D7]">
+                        Search YouTube music above
                       </p>
-                      <p className="mt-1 text-xs text-pink-100/40">
+                      <p className="mt-1 text-xs text-[#F3E7D7]/40">
                         YouTube results will appear here.
                       </p>
                     </div>
@@ -798,28 +966,28 @@ function App() {
           </div>
         ) : (
           <div className="relative z-10 flex h-full flex-col overflow-hidden">
-            <div className="border-b border-pink-200/10 bg-black/20 p-5 backdrop-blur-md">
+            <div className="border-b border-white/10 bg-gradient-to-b from-[#251634]/70 to-[#141821]/35 px-5 pt-4 pb-3 backdrop-blur-md">
               <button
                 onClick={() => setSelectedPlaylist(null)}
-                className="mb-4 text-sm font-black text-pink-100/55"
+                className="mb-4 text-sm font-black text-[#F3E7D7]/55"
               >
                 ← Back
               </button>
 
-              <h1 className="text-2xl font-black leading-tight text-pink-50">
+              <h1 className="text-2xl font-black leading-tight text-[#F3E7D7]">
                 {selectedPlaylist.name}
               </h1>
 
-              <p className="mt-2 text-sm text-pink-100/45">
-                {isLoadingTracks
-                  ? "Loading cozy tracks..."
-                  : `${tracks.length} tracks ready`}
-              </p>
+              <p className="mt-2 text-sm text-[#F3E7D7]/45">
+              {isLoadingTracks ? "Loading tracks..." : `${tracks.length} tracks`}
+            </p>
+
+            <div className="mt-3 h-[1px] bg-gradient-to-r from-[#9D7CFF]/25 via-[#9D7CFF]/8 to-transparent" />
 
               <div className="mt-4 flex gap-3">
                 <button
                   onClick={handlePlayPlaylist}
-                  className="flex-1 rounded-2xl bg-gradient-to-r from-[#ff5ebf] to-[#8f3bff] px-4 py-3 text-sm font-black shadow-[0_12px_24px_rgba(255,90,190,0.2)] active:scale-95"
+                  className="flex-1 rounded-2xl bg-gradient-to-r from-[#8E72FF] to-[#6C55F5] px-4 py-3 text-sm font-black shadow-[0_12px_24px_rgba(124,110,246,0.18)] active:scale-95"
                 >
                   {activePlaylistId === selectedPlaylist.id && isPlaying
                     ? "Pause"
@@ -828,18 +996,20 @@ function App() {
 
                 <button
                   onClick={handleShuffleToggle}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-black active:scale-95 ${
-                    isShuffleOn
-                      ? "border-pink-200/40 bg-pink-400/20 text-pink-50"
-                      : "border-pink-200/15 bg-white/10 text-pink-100/60"
-                  }`}
+                  className={`flex items-center justify-center rounded-2xl border px-4 py-3 text-sm font-black transition active:scale-95 ${
+                  isShuffleOn
+                    ? "border-[#9D7CFF]/70 bg-gradient-to-r from-[#8E72FF]/35 to-[#6C55F5]/25 text-white shadow-[0_0_24px_rgba(157,124,255,0.35)]"
+                    : "border-[#9D7CFF]/20 bg-white/10 text-[#E7DEF8]/75 hover:bg-white/15"
+                }`}
                 >
-                  Shuffle
+                  <span className="mr-1">⤨</span>
+                  <span>Shuffle</span>
+
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 pb-36 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex-1 overflow-y-auto p-4 pb-32 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {isLoadingTracks ? (
                 <div className="space-y-3">
                   {[1, 2, 3, 4, 5].map((item) => (
@@ -874,18 +1044,18 @@ function App() {
                           setIsPlaying(true)
                           await refreshStateAfterSkip()
                         }}
-                        className="flex w-full items-center gap-3 rounded-[22px] border border-pink-200/10 bg-white/7 p-3 text-left shadow-[0_8px_20px_rgba(0,0,0,0.18)] transition hover:bg-white/10 active:scale-[0.98]"
+                        className="flex w-full items-center gap-3 rounded-[22px] border border-white/10 bg-white/5 p-3 text-left shadow-[0_8px_20px_rgba(0,0,0,0.18)] transition hover:bg-white/10 active:scale-[0.98]"
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-pink-400/10 text-sm font-black text-pink-100/50">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#9D7CFF]/10 text-sm font-black text-[#E7DEF8]/50">
                           {index + 1}
                         </div>
 
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-pink-50">
+                          <p className="truncate text-sm font-black text-[#F3E7D7]">
                             {track.name}
                           </p>
 
-                          <p className="truncate text-xs text-pink-100/45">
+                          <p className="truncate text-xs text-[#F3E7D7]/45">
                             {track.artists
                               ?.map((artist: any) => artist.name)
                               .join(", ")}
@@ -896,10 +1066,10 @@ function App() {
                   })}
                 </div>
               ) : (
-                <div className="rounded-[28px] border border-dashed border-pink-200/15 bg-white/5 p-8 text-center">
+                <div className="rounded-[28px] border border-dashed border-[#9D7CFF]/15 bg-white/5 p-8 text-center">
                   <p className="text-4xl">🐶</p>
-                  <p className="mt-3 text-sm font-black text-pink-50">
-                    No tracks found
+                  <p className="mt-3 text-sm font-black text-[#F3E7D7]">
+                    No tracks available
                   </p>
                 </div>
               )}
@@ -907,19 +1077,19 @@ function App() {
           </div>
         )}
 
-        {selectedTrack && (
-          <div className="absolute bottom-4 left-4 right-4 z-20 rounded-[28px] border border-pink-200/20 bg-[#20102dee] p-3 shadow-[0_14px_34px_rgba(0,0,0,0.38),0_0_26px_rgba(255,130,235,0.16)] backdrop-blur-xl">
-            <p className="text-[10px] text-pink-100/40">
-              Now playing with PawTunes
+        {selectedTrack && activeTab === "spotify" && (
+          <div className="absolute bottom-3 left-3 right-3 z-20 rounded-[22px] border border-[#9D7CFF]/15 bg-[#121721ee] p-2 shadow-[0_10px_24px_rgba(0,0,0,0.35),0_0_20px_rgba(255,130,235,0.12)] backdrop-blur-xl">
+            <p className="text-[10px] text-[#F3E7D7]/40">
+              Now playing
             </p>
 
             <div className="mt-1 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <h2 className="truncate text-sm font-black text-pink-100">
+                <h2 className="truncate text-xs font-black text-[#E7DEF8]">
                   {selectedTrack.name}
                 </h2>
 
-                <p className="truncate text-xs text-pink-100/55">
+                <p className="truncate text-xs text-[#F3E7D7]/55">
                   {selectedTrack.artists
                     ?.map((artist: any) => artist.name)
                     .join(", ")}
@@ -929,14 +1099,18 @@ function App() {
               <div className="flex shrink-0 items-center gap-2">
                 <button
                   onClick={handlePrev}
-                  className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-pink-200/15 bg-white/10 text-lg active:scale-95"
+                  className="relative flex h-9 w-9 items-center justify-center rounded-2xl border border-[#9D7CFF]/15 bg-white/10 text-lg active:scale-95"
                 >
                   {pawTarget === "prev" && (
                     <span className="pointer-events-none absolute text-xl animate-[pawTap_0.45s_ease-out_forwards]">
                       🐾
                     </span>
                   )}
-                  ⏮
+                  <img
+                  src={backButton}
+                  alt="Previous"
+                  className="h-8 w-8 object-contain"
+                />
                 </button>
 
                 <button
@@ -944,31 +1118,55 @@ function App() {
                     triggerPaw("play")
                     await handlePlayPause()
                   }}
-                  className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-b from-[#ff5ebf] to-[#e941a7] text-xl font-black active:scale-95"
+                  className="
+                  relative
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-[#20152E]
+                  border
+                  border-[#9D7CFF]/25
+                  text-[#E7DEF8]
+                  text-xl
+                  font-black
+                  shadow-[0_0_18px_rgba(157,124,255,0.30)]
+                  active:scale-95
+                  "
                 >
                   {pawTarget === "play" && (
                     <span className="pointer-events-none absolute text-2xl animate-[pawTap_0.45s_ease-out_forwards]">
                       🐾
                     </span>
                   )}
-                  {isPlaying ? "Ⅱ" : "▶"}
+                  <img
+                  src={isPlaying ? pauseButton : playButton}
+                  alt={isPlaying ? "Pause" : "Play"}
+                  className="h-10 w-10 object-contain"
+                />
                 </button>
 
                 <button
                   onClick={handleNext}
-                  className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-pink-200/15 bg-white/10 text-lg active:scale-95"
+                  className="relative flex h-9 w-9 items-center justify-center rounded-2xl border border-[#9D7CFF]/15 bg-white/10 text-lg active:scale-95"
                 >
                   {pawTarget === "next" && (
                     <span className="pointer-events-none absolute text-xl animate-[pawTap_0.45s_ease-out_forwards]">
                       🐾
                     </span>
                   )}
-                  ⏭
+                  <img
+                  src={nextButton}
+                  alt="Next"
+                  className="h-8 w-8 object-contain"
+                />
                 </button>
               </div>
             </div>
 
-            <div className="mt-3">
+            <div className="mt-1">
               <input
                 type="range"
                 min="0"
@@ -979,10 +1177,10 @@ function App() {
                   setPosition(ms)
                   if (player) await player.seek(ms)
                 }}
-                className="w-full accent-pink-400"
+                className="h-[2px] w-full accent-[#7C6EF6]"
               />
 
-              <div className="mt-1 flex justify-between text-[10px] text-pink-100/40">
+              <div className="mt-0 flex justify-between text-[10px] text-[#F3E7D7]/40">
                 <span>{formatTime(position)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
