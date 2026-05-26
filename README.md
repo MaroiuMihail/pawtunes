@@ -72,7 +72,7 @@ The app combines Spotify playback with YouTube music discovery in a single premi
 Clone repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/pawtunes.git
+git clone https://github.com/MaroiuMihail/pawtunes
 ```
 
 Go into project:
@@ -91,6 +91,7 @@ Create environment file:
 
 ```env
 VITE_SPOTIFY_CLIENT_ID=your_spotify_client_id
+VITE_SPOTIFY_REDIRECT_URI=https://pawtunes.vercel.app/callback
 VITE_YOUTUBE_API_KEY=your_youtube_api_key
 ```
 
@@ -142,7 +143,7 @@ http://127.0.0.1:5173
 Production:
 
 ```text
-your-production-url
+https://pawtunes.vercel.app/callback
 ```
 
 ### 4. Save Settings
@@ -213,23 +214,37 @@ src/
 
 ---
 
-## Screens
+## Screenshots
 
 ### Login
 
-Spotify authentication experience.
+![Login](./screenshots/login.png)
+
+Premium onboarding experience with Spotify authentication.
+
+---
 
 ### Spotify Home
 
-Browse playlists and favorites.
+![Spotify Home](./screenshots/home.png)
+
+Browse playlists, search music, manage favorites, and control Spotify playback.
+
+---
 
 ### Playlist View
 
-Track browsing with playback controls.
+![Playlist View](./screenshots/playlist.png)
+
+Premium playlist experience with playback controls, shuffle support, and responsive UI.
+
+---
 
 ### YouTube Discovery
 
-Search and save music videos.
+![YouTube Discovery](./screenshots/youtube.png)
+
+Search YouTube music videos, save favorites, and discover tracks alongside Spotify.
 
 ---
 
@@ -249,6 +264,8 @@ Search and save music videos.
 
 PawTunes MVP — Released
 
-Built as a personal frontend product focused on premium UX, music experience, and modern frontend engineering.
+Built as a personal product focused on premium UX, music discovery, and modern frontend engineering.
+
+Designed and developed with React, TypeScript, Spotify APIs, YouTube integration, and a mobile-first product mindset.
 
 ---
